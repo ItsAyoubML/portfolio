@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ItsAyoubML — Agent Portfolio</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='none' stroke='%23cc0f0f' stroke-width='4'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23cc0f0f' stroke-width='4'/%3E%3Ccircle cx='50' cy='50' r='8' fill='%23cc0f0f'/%3E%3C/svg%3E">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #1a1a1a;
+    --card: #161616;
+    --border: #2a2a2a;
+    --red: #cc0f0f;
+    --red-dim: #991111;
+    --red-glow: rgba(204, 15, 15, 0.15);
+    --gold: #d4a017;
+    --gold-dim: #8a6510;
+    --text: #e8e8e8;
+    --text-dim: #888;
+    --text-muted: #555;
+    --green: #16a34a;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--red-dim); border-radius: 3px; }
+
+  .scanlines {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 9998; pointer-events: none;
+    background: repeating-linear-gradient(0deg,
+      transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+  }
+
+  .watermark-47 {
+    position: fixed; bottom: -20px; right: -20px;
+    font-size: 200px; font-weight: 900;
+    color: rgba(204,15,15,0.03);
+    font-family: 'JetBrains Mono', monospace;
+    pointer-events: none; z-index: 0; user-select: none;
+  }
+
+  .classification {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--red-dim);
+    padding: 0.3rem 1rem;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem; letter-spacing: 2px;
+    color: var(--red); text-transform: uppercase; user-select: none;
+  }
+
+  .classification .cl-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .classification .cl-dot.green { background: var(--green); animation: pulse 1.5s infinite; }
+
+  @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+  .section { max-width: 1000px; margin: 0 auto; padding: 5rem 2rem; }
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 3px; color: var(--red); text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .section-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -1px; }
+  .red-line { width: 40px; height: 2px; background: var(--red); margin: 0.5rem 0 1.5rem 0; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; position: relative;
+    text-align: center; padding: 2rem;
+    background: radial-gradient(ellipse at center, rgba(204,15,15,0.08) 0%, transparent 70%);
+  }
+  .hero::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(204,15,15,0.015) 2px, rgba(204,15,15,0.015) 4px);
+    pointer-events: none;
+  }
+  .hero-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+    letter-spacing: 4px; color: var(--red);
+    border: 1px solid var(--red-dim); padding: 0.4rem 1.2rem;
+    margin-bottom: 1.5rem; text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(3rem, 8vw, 6rem); font-weight: 900;
+    letter-spacing: -3px; line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, #cc0f0f 50%, #d4a017 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero .alias {
+    font-family: 'JetBrains Mono', monospace; font-size: 1.2rem;
+    color: var(--gold); margin-top: 0.5rem; letter-spacing: 3px;
+  }
+  .hero-sub {
+    font-size: 1rem; color: var(--text-dim); margin-top: 1.5rem;
+    max-width: 500px; font-weight: 300;
+  }
+  .hero-line { width: 60px; height: 2px; background: var(--red); margin: 2rem auto; }
+  .scroll-indicator {
+    position: absolute; bottom: 2rem; font-size: 0.7rem;
+    letter-spacing: 3px; color: var(--text-muted); text-transform: uppercase;
+    animation: pulse 2s infinite;
+  }
+
+  /* BADGE ROW */
+  .badge-row {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    margin-top: 1.5rem;
+  }
+  .badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 2px; text-transform: uppercase;
+    border: 1px solid var(--border); padding: 0.3rem 0.8rem;
+    color: var(--text-dim);
+  }
+  .badge.red { border-color: var(--red-dim); color: var(--red); }
+  .badge.gold { border-color: var(--gold-dim); color: var(--gold); }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 3rem; }
+  .timeline::before {
+    content: ''; position: absolute; left: 12px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--red), var(--gold), var(--red));
+  }
+  .tl-item {
+    position: relative; margin-bottom: 2rem; padding: 1.2rem 1.5rem;
+    background: var(--card); border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  .tl-item:hover { border-color: var(--red-dim); }
+  .tl-item::before {
+    content: ''; position: absolute; left: -2.55rem; top: 1.5rem;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--red); border: 2px solid var(--bg);
+    box-shadow: 0 0 0 2px var(--red);
+  }
+  .tl-item .tl-phase {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 2px; color: var(--red); text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+  .tl-item .tl-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .tl-item .tl-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
+  .tl-item .tl-status {
+    display: inline-block; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem; letter-spacing: 1px; text-transform: uppercase;
+    padding: 0.15rem 0.5rem; margin-top: 0.5rem;
+  }
+  .tl-item .tl-status.done { border: 1px solid var(--green); color: var(--green); }
+  .tl-item .tl-status.active { border: 1px solid var(--gold-dim); color: var(--gold); }
+  .tl-item .tl-status.pending { border: 1px solid var(--text-muted); color: var(--text-muted); }
+
+  /* PROJECT CARDS */
+  .project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .project-card {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 1.5rem; transition: all 0.3s ease; cursor: default;
+  }
+  .project-card:hover {
+    border-color: var(--red-dim); transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(204,15,15,0.08);
+  }
+  .project-card .p-number {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 2px; color: var(--red); margin-bottom: 0.5rem;
+  }
+  .project-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .project-card .p-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
+  .project-card .p-tags {
+    display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem;
+  }
+  .project-card .p-tags span {
+    font-size: 0.6rem; padding: 0.15rem 0.5rem;
+    border: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .project-card .p-tags .t-red { border-color: var(--red-dim); color: var(--red); }
+  .project-card .p-tags .t-gold { border-color: var(--gold-dim); color: var(--gold); }
+  .project-card .p-tags .t-green { border-color: #166534; color: var(--green); }
+
+  /* TARGET LIST */
+  .target-list { list-style: none; }
+  .target-list li {
+    display: flex; align-items: center; gap: 0.8rem;
+    padding: 0.8rem 1rem; border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .target-list li:hover { background: rgba(204,15,15,0.03); }
+  .target-list .t-rank {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+    font-weight: 700; color: var(--text-muted); width: 20px;
+  }
+  .target-list .t-rank.rank-1 { color: var(--gold); }
+  .target-list .t-rank.rank-2 { color: #aaa; }
+  .target-list .t-rank.rank-3 { color: var(--red-dim); }
+
+  /* FOOTER */
+  footer {
+    text-align: center; padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted); font-size: 0.7rem; letter-spacing: 1px;
+  }
+  footer a { color: var(--red); text-decoration: none; }
+  .social-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; }
+  .social-links a {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+    color: var(--text-dim); text-decoration: none; letter-spacing: 1px;
+    transition: all 0.3s ease;
+  }
+  .social-links a:hover { color: var(--red); }
+
+  @media (max-width: 600px) {
+    .section { padding: 3rem 1.2rem; }
+    .section-title { font-size: 1.8rem; }
+    .timeline { padding-left: 2rem; }
+    .tl-item { padding: 1rem 1.2rem; }
+    .tl-item::before { left: -1.55rem; }
+    .hero h1 { font-size: clamp(2rem, 10vw, 4rem); }
+    .classification { font-size: 0.45rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+<div class="watermark-47">47</div>
+
+<div class="classification">
+  <div style="display:flex;align-items:center;gap:0.8rem;">
+    <span class="cl-dot green"></span>
+    <span>FIELD AGENT DOSSIER</span>
+  </div>
+  <span>IA // CLEARANCE 47</span>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Classified Dossier &bull; 2026</div>
+  <h1>AYOUB<br>ASSOUAR</h1>
+  <div class="alias">// ItsAyoubML //</div>
+  <p class="hero-sub">Moroccan field agent in training. Target: Artificial Intelligence. Endgame: Anthropic.</p>
+  <div class="hero-line"></div>
+  <div class="badge-row">
+    <span class="badge red">ESSAOUIRA</span>
+    <span class="badge gold">SCIENCES MATH A</span>
+    <span class="badge">CPGE TARGET</span>
+    <span class="badge red">ENSIAS IASD</span>
+  </div>
+  <div class="scroll-indicator">▸ Scroll to dossier ◂</div>
+</section>
+
+<!-- ABOUT -->
+<section class="section">
+  <div class="section-tag">Field Agent Profile</div>
+  <h2 class="section-title">Background</h2>
+  <div class="red-line"></div>
+  <p style="color:var(--text-dim);font-size:0.95rem;max-width:700px;">
+    Ayoub Assouar, codename ItsAyoubML. Based in Essaouira, Morocco. Finished Tronc Commun Scientifique,
+    currently advancing through Sciences Mathématiques on the path to CPGE (MP) and ultimately
+    ENSIAS — Intelligence Artificielle et Science des Données. Mission: build an unstoppable portfolio,
+    master AI/ML, and land at Anthropic.
+  </p>
+</section>
+
+<!-- TIMELINE -->
+<section class="section">
+  <div class="section-tag">Mission Timeline</div>
+  <h2 class="section-title">The Path</h2>
+  <div class="red-line"></div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-phase">Phase 0 &bull; 2024-2025</div>
+      <div class="tl-title">Tronc Commun Scientifique</div>
+      <div class="tl-desc">Foundation year. Completed successfully. Science stream locked in.</div>
+      <span class="tl-status done">COMPLETED</span>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-phase">Phase 1 &bull; 2025-2026</div>
+      <div class="tl-title">1BAC Sciences Mathématiques</div>
+      <div class="tl-desc">First year of baccalaureate in Mathematical Sciences. Building the math backbone for CPGE MP and AI/ML.</div>
+      <span class="tl-status active">IN PROGRESS</span>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-phase">Phase 2 &bull; 2026-2027</div>
+      <div class="tl-title">2BAC Sciences Mathématiques A</div>
+      <div class="tl-desc">Final bac year — target 18+ to unlock top CPGEs (Lydex, Moulay Youssef, Omar Khayam). BAC mention determines everything.</div>
+      <span class="tl-status pending">UP NEXT</span>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-phase">Phase 3 &bull; 2027-2029</div>
+      <div class="tl-title">CPGE — MP (Maths-Physique)</div>
+      <div class="tl-desc">Two years of intense prep. MP option for maximum school access. TIPE must be AI-related. Target top 5% rank for concours.</div>
+      <span class="tl-status pending">UP NEXT</span>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-phase">Phase 4 &bull; 2029-2032</div>
+      <div class="tl-title">ENSIAS — IASD (Intelligence Artificielle)</div>
+      <div class="tl-desc">The only school that matters. Three-year engineering cycle specializing in AI & Data Science. PyTorch, TensorFlow, ML research, Kaggle, internships at OCP AI Lab.</div>
+      <span class="tl-status pending">UP NEXT</span>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-phase">Phase 5 &bull; 2032+</div>
+      <div class="tl-title">FINAL TARGET — ANTHROPIC</div>
+      <div class="tl-desc">AI safety research. Claude's creator. $400K-$500K Senior SWE / $600K-$1.28M Staff. The endgame. BAC-to-Anthropic story.</div>
+      <span class="tl-status pending">ENDGAME</span>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="section">
+  <div class="section-tag">Active Operations</div>
+  <h2 class="section-title">Portfolio</h2>
+  <div class="red-line"></div>
+
+  <div class="project-grid">
+    <div class="project-card">
+      <div class="p-number">OP 001 &bull; CLI</div>
+      <h3>Learn Python CLI</h3>
+      <div class="p-desc">Interactive CLI app to learn Python basics — variables, loops, functions, lists, conditionals, dictionaries. 7 lessons with live code runner and quizzes.</div>
+      <div class="p-tags">
+        <span class="t-red">PYTHON</span>
+        <span class="t-gold">CLI</span>
+        <span class="t-green">EDUCATION</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="p-number">OP 002 &bull; DATA</div>
+      <h3>Salary Comparison Briefing</h3>
+      <div class="p-desc">Agent 47-themed HTML briefing comparing Senior SWE compensation across 13 top tech companies. Real icons, live data from Levels.fyi.</div>
+      <div class="p-tags">
+        <span class="t-red">HTML/CSS</span>
+        <span class="t-gold">DATA VIZ</span>
+        <span class="t-green">WEB</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="p-number">OP 003 &bull; PROFILE</div>
+      <h3>Agent Portfolio</h3>
+      <div class="p-desc">Personal portfolio page. The one you're looking at right now. Dark spy aesthetic, roadmap timeline, project showcase.</div>
+      <div class="p-tags">
+        <span class="t-red">HTML/CSS</span>
+        <span class="t-gold">PORTFOLIO</span>
+        <span class="t-green">RESPONSIVE</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TARGET COMPANIES -->
+<section class="section">
+  <div class="section-tag">Target Acquisition</div>
+  <h2 class="section-title">Priority Targets</h2>
+  <div class="red-line"></div>
+
+  <ul class="target-list">
+    <li><span class="t-rank rank-1">01</span> Anthropic — <span style="color:var(--text-dim);font-size:0.8rem;">Primary target. AI safety. Claude.</span></li>
+    <li><span class="t-rank rank-2">02</span> OpenAI — <span style="color:var(--text-dim);font-size:0.8rem;">GPT. Highest comp ceiling.</span></li>
+    <li><span class="t-rank rank-3">03</span> Meta AI — <span style="color:var(--text-dim);font-size:0.8rem;">Fast promos, aggressive equity.</span></li>
+    <li><span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:700;color:var(--text-muted);width:20px;">04</span> Google DeepMind — <span style="color:var(--text-dim);font-size:0.8rem;">AI research, prestige, London/Paris.</span></li>
+    <li><span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:700;color:var(--text-muted);width:20px;">05</span> Netflix — <span style="color:var(--text-dim);font-size:0.8rem;">Highest cash comp. All-culture.</span></li>
+    <li><span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:700;color:var(--text-muted);width:20px;">06</span> Mistral AI — <span style="color:var(--text-dim);font-size:0.8rem;">Paris-based. French AI champion.</span></li>
+    <li><span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:700;color:var(--text-muted);width:20px;">07</span> NVIDIA — <span style="color:var(--text-dim);font-size:0.8rem;">AI hardware. Stock upside.</span></li>
+  </ul>
+</section>
+
+<!-- SKILLS -->
+<section class="section">
+  <div class="section-tag">Equipment</div>
+  <h2 class="section-title">Tech Stack</h2>
+  <div class="red-line"></div>
+
+  <div class="badge-row" style="justify-content:flex-start;">
+    <span class="badge red">PYTHON</span>
+    <span class="badge gold">PYTORCH</span>
+    <span class="badge red">TENSORFLOW</span>
+    <span class="badge gold">HTML/CSS</span>
+    <span class="badge">JAVASCRIPT</span>
+    <span class="badge red">REACT</span>
+    <span class="badge gold">NODE.JS</span>
+    <span class="badge">GIT</span>
+    <span class="badge red">LINUX</span>
+    <span class="badge gold">DOCKER</span>
+    <span class="badge">SQL</span>
+    <span class="badge red">LATEX</span>
+  </div>
+</section>
+
+<footer>
+  <div class="social-links">
+    <a href="https://github.com/ItsAyoubML">GITHUB // ItsAyoubML</a>
+    <a href="https://www.youtube.com/@ItsAyoubML">YOUTUBE // ItsAyoubML</a>
+    <a href="https://www.twitch.tv/ItsAyoubML">TWITCH // ItsAyoubML</a>
+    <a href="#">KAGGLE // COMING SOON</a>
+  </div>
+  <p>FIELD AGENT // AYOUB ASSOUAR // CLEARANCE 47</p>
+  <p style="margin-top:0.5rem;font-size:0.55rem;letter-spacing:3px;">ESSAOUIRA &mdash; MOROCCO &mdash; TARGET: ANTHROPIC</p>
+  <p style="margin-top:1rem;font-size:0.5rem;letter-spacing:2px;color:var(--text-muted);">— DOSSIER CLASSIFIED —</p>
+</footer>
+
+<script>
+  // Typing effect
+  const el = document.querySelector('.hero-sub');
+  const text = el.textContent;
+  el.textContent = '';
+  let i = 0;
+  function typeWriter() {
+    if (i < text.length) {
+      el.textContent += text.charAt(i);
+      i++;
+      setTimeout(typeWriter, 15 + Math.random() * 20);
+    }
+  }
+  setTimeout(typeWriter, 800);
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.tl-item, .project-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>
